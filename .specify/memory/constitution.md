@@ -12,8 +12,10 @@ una feature sin que exista su spec, su plan y sus tasks.
 El tablero es **GitHub Projects (Kanban)** + **Issues** + **Milestones**:
 un Milestone por Epic (`Epic N - Nombre`), Issues redactados como historias
 de usuario (`Como <rol> quiero <acción> para <beneficio>`) con label
-`epic:N`. En Epic 0 solo se cargan 1-2 Issues placeholder por Epic; las
-historias finas se redactan al hacer `/specify` de cada feature.
+`epic:N`. El plan de Epic 0 preveía cargar 1-2 Issues placeholder por
+Epic; a la fecha de esta versión **todavía no se crearon** (0 Issues, 0
+Milestones en el repo) — queda como deuda de Epic 0. Las historias finas
+se redactan al hacer `/specify` de cada feature.
 
 ### III. Backend por feature, entidades ricas
 El backend se organiza en paquetes **por feature** (`sections`, `works`,
@@ -27,9 +29,12 @@ fuera de alcance salvo decisión explícita documentada.
 
 ### V. Testing real desde que haya lógica
 Backend con **JUnit 5 + Mockito** (unitarios) y **Testcontainers**
-(integración contra PostgreSQL real). A partir del Epic 1, cada PR corre
-`mvn verify` completo en CI. El frontend define su estrategia de testing al
-llegar a los Epics que agreguen lógica de UI relevante.
+(integración contra PostgreSQL real) — el smoke test de Epic 0 ya arranca
+el contexto contra un `PostgreSQLContainer` real. A partir del Epic 1,
+cada PR corre `mvn verify` completo en CI (hoy la CI sigue en
+`-DskipTests`, ver `.github/workflows/ci.yml`). El frontend define su
+estrategia de testing al llegar a los Epics que agreguen lógica de UI
+relevante.
 
 ## Restricciones
 
