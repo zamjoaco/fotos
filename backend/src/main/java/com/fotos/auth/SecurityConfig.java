@@ -11,6 +11,11 @@ import org.springframework.security.web.SecurityFilterChain;
  * Spring Security bloquea todo por defecto (incluido /actuator/health,
  * usado por el healthcheck de docker-compose) con una password generada.
  * Se abre todo explicitamente hasta que exista auth real.
+ *
+ * TODO(Epic 4): reemplazar el permitAll por reglas reales (JWT en cookie
+ * httpOnly para /admin/**, resto publico) y volver a habilitar CSRF donde
+ * corresponda. Ese dia, revisar tambien el healthcheck de docker-compose.yml
+ * (hoy depende de que /actuator/health quede sin auth).
  */
 @Configuration
 public class SecurityConfig {
@@ -19,6 +24,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .httpBasic(basic -> basic.disable())
+            .formLogin(form -> form.disable())
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         return http.build();
     }
