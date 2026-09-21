@@ -1,0 +1,6 @@
+-- V1__init.sql
+-- Punto de partida de las migraciones Flyway para el backend de fotos-backend.
+-- Epic 0 (fundacion): no se crean tablas todavia, las entidades de dominio
+-- (Section, Work, Lead, Campaign, AdminUser, RefreshToken) se agregan en
+-- migraciones posteriores, una por Epic/feature, siguiendo el flujo
+-- specify -> plan -> tasks -> implement de spec-kit.

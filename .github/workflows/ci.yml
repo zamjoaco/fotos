@@ -1,0 +1,53 @@
+name: CI
+
+# Epic 0: solo build (compila backend y frontend). No hay tests propios
+# todavia. A partir del Epic 1 este job pasa a correr `mvn -q verify`
+# (con JUnit 5 + Mockito) en vez de `-DskipTests`, ya que el DoD de cada
+# Epic siguiente exige tests de backend.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend-build:
+    name: Build backend (Spring Boot)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build backend (skip tests, Epic 0 no tiene tests propios aun)
+        working-directory: backend
+        run: mvn -q package -DskipTests
+        # TODO(Epic 1+): reemplazar por `mvn -q verify` para correr los
+        # tests de JUnit 5 + Mockito una vez existan.
+
+  frontend-build:
+    name: Build frontend (Angular)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
