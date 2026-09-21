@@ -51,7 +51,7 @@ admin:
 storage:
   minio:
     enabled: ${STORAGE_MINIO_ENABLED:false}
-    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
-    access-key: ${MINIO_ACCESS_KEY:}
-    secret-key: ${MINIO_SECRET_KEY:}
-    bucket: ${MINIO_BUCKET:fotos}
+    endpoint: ${STORAGE_MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${STORAGE_MINIO_ACCESS_KEY:}
+    secret-key: ${STORAGE_MINIO_SECRET_KEY:}
+    bucket: ${STORAGE_MINIO_BUCKET:fotos-works}

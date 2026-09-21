@@ -28,7 +28,9 @@ services:
       retries: 5
 
   minio:
-    image: minio/minio:latest
+    # minio/minio en Docker Hub fue dado de baja por MinIO; la imagen
+    # oficial vigente se publica en quay.io.
+    image: quay.io/minio/minio:RELEASE.2025-04-08T15-41-24Z
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -40,13 +42,13 @@ services:
     volumes:
       - minio_data:/data
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "mc", "ready", "local"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   mailhog:
-    image: mailhog/mailhog:latest
+    image: mailhog/mailhog:v1.0.1
     restart: unless-stopped
     ports:
       - "${MAILHOG_SMTP_PORT:-1025}:1025"
@@ -68,10 +70,11 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-fotos}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-fotos}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-fotos_dev_password}
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
       SPRING_MAIL_HOST: mailhog
       SPRING_MAIL_PORT: 1025
+      STORAGE_MINIO_ENABLED: "true"
       STORAGE_MINIO_ENDPOINT: http://minio:9000
       STORAGE_MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-fotos_minio}
       STORAGE_MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-fotos_minio_password}
@@ -94,8 +97,8 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
-    environment:
-      API_URL: http://backend:8080
+    # /api/* se reenvia al servicio backend via frontend/proxy.conf.json
+    # (ng serve --proxy-config, wireado en angular.json).
     ports:
       - "${FRONTEND_PORT:-4200}:4200"
 
