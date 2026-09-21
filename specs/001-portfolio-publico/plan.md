@@ -61,12 +61,12 @@ backend/src/main/java/com/fotos/
 ├── sections/
 │   ├── Section.java              # entidad de dominio (nombre, slug, orden, publicado)
 │   ├── SectionRepository.java
-│   ├── SectionController.java    # GET /api/sections, GET /api/sections/{slug}
+│   ├── SectionController.java    # GET /sections, GET /sections/{slug}
 │   └── package-info.java         # ya existe (Epic 0)
 └── works/
     ├── Work.java                 # entidad de dominio (section, minioObjectKey, orden, publicado)
     ├── WorkRepository.java
-    ├── WorkController.java       # GET /api/sections/{slug}/works (paginado)
+    ├── WorkController.java       # GET /sections/{slug}/works (paginado)
     └── package-info.java         # ya existe (Epic 0)
 
 backend/src/main/resources/db/migration/
@@ -94,7 +94,7 @@ frontend/src/app/public/
     └── section-detail.spec.ts
 
 frontend/src/app/core/
-└── portfolio.service.ts   # nuevo: cliente HTTP contra /api/sections, /api/sections/{slug}/works
+└── portfolio.service.ts   # nuevo: cliente HTTP contra /sections, /sections/{slug}/works
 ```
 
 **Structure Decision**: Web application ya establecida en Epic 0 (`backend/` Spring Boot por feature + `frontend/` Angular). Esta feature agrega dos features nuevas al backend (`sections`, `works`, ya con sus paquetes vacios scaffoldeados) y completa los componentes `public/home` y `public/sections` que Epic 0 dejo como stubs, sumando `public/sections/section-detail` para la vista ampliada.

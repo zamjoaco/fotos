@@ -40,8 +40,9 @@ public class WorkController {
 
         int clampedSize = Math.min(Math.max(size, 1), MAX_SIZE);
         int clampedPage = Math.max(page, 0);
-        Page<Work> result = workRepository.findBySectionSlugAndPublicadoTrueAndSectionPublicadoTrueOrderByOrdenAsc(
-                slug, PageRequest.of(clampedPage, clampedSize));
+        Page<Work> result =
+                workRepository.findBySectionSlugAndPublicadoTrueAndSectionPublicadoTrueOrderByOrdenAscCreadoEnAsc(
+                        slug, PageRequest.of(clampedPage, clampedSize));
 
         return new WorkPageResponse(
                 result.getContent().stream().map(this::aRespuestaDeGaleria).toList(),
@@ -62,14 +63,15 @@ public class WorkController {
         Work work = workRepository.findByIdAndSectionSlugAndPublicadoTrueAndSectionPublicadoTrue(workId, slug)
                 .orElseThrow(NotFoundException::new);
 
+        PageRequest primero = PageRequest.of(0, 1);
         String anteriorId = workRepository
-                .findFirstBySectionSlugAndPublicadoTrueAndSectionPublicadoTrueAndOrdenLessThanOrderByOrdenDesc(
-                        slug, work.getOrden())
+                .buscarAnteriores(slug, work.getOrden(), work.getCreadoEn(), primero)
+                .stream().findFirst()
                 .map(w -> w.getId().toString())
                 .orElse(null);
         String siguienteId = workRepository
-                .findFirstBySectionSlugAndPublicadoTrueAndSectionPublicadoTrueAndOrdenGreaterThanOrderByOrdenAsc(
-                        slug, work.getOrden())
+                .buscarSiguientes(slug, work.getOrden(), work.getCreadoEn(), primero)
+                .stream().findFirst()
                 .map(w -> w.getId().toString())
                 .orElse(null);
 

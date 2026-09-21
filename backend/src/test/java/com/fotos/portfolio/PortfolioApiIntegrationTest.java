@@ -3,6 +3,7 @@ package com.fotos.portfolio;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fotos.sections.Section;
@@ -63,6 +64,15 @@ class PortfolioApiIntegrationTest {
         });
     }
 
+    // El seed de V2__portfolio_publico.sql carga 4 secciones (bodas, retratos,
+    // books, eventos) al arrancar el contexto; sin limpiar ANTES de cada test,
+    // los tests que insertan esos mismos slugs chocan con la UNIQUE constraint
+    // segun el orden en que JUnit los corra (no hay orden garantizado).
+    @BeforeEach
+    void limpiarAntes() {
+        limpiar();
+    }
+
     @AfterEach
     void limpiar() {
         workRepository.deleteAll();
@@ -106,6 +116,7 @@ class PortfolioApiIntegrationTest {
         ResponseEntity<String> response = rest.getForEntity("/sections/no-existe", String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isEqualTo("{\"error\":\"not_found\"}");
     }
 
     @Test
@@ -150,6 +161,9 @@ class PortfolioApiIntegrationTest {
         assertThat(response.getBody().content().get(0).imageUrl()).contains("bodas/1.jpg");
         assertThat(response.getBody().totalElements()).isEqualTo(3);
         assertThat(response.getBody().totalPages()).isEqualTo(2);
+        // La key persistida realmente llega al servicio de firmado, no cualquier string.
+        verify(presignedUrlService).generar("bodas/1.jpg");
+        verify(presignedUrlService).generar("bodas/2.jpg");
     }
 
     private Section crearSeccionPublicada(String nombre, String slug, int orden) {
@@ -193,6 +207,31 @@ class PortfolioApiIntegrationTest {
     }
 
     @Test
+    void empatesDeOrdenSeDesempatanPorCreadoEnEnPaginadoYNavegacion() {
+        Section bodas = crearSeccionPublicada("Bodas", "bodas", 0);
+        // Los 3 Work comparten "orden" a proposito: sin el desempate por
+        // creadoEn (research.md / data-model.md), esto rompe el corte de
+        // pagina y hace que la navegacion anterior/siguiente salte hermanos.
+        // Los sleeps garantizan creadoEn distintos (evita flakiness si el
+        // reloj no tiene resolucion suficiente entre inserts consecutivos).
+        Work primero = crearWorkPublicado(bodas, "bodas/1.jpg", 0);
+        sleepUnMilisegundo();
+        Work segundo = crearWorkPublicado(bodas, "bodas/2.jpg", 0);
+        sleepUnMilisegundo();
+        Work tercero = crearWorkPublicado(bodas, "bodas/3.jpg", 0);
+
+        ResponseEntity<WorkPageResponse> pagina =
+                rest.getForEntity("/sections/bodas/works?size=2", WorkPageResponse.class);
+        assertThat(pagina.getBody().content()).hasSize(2);
+        assertThat(pagina.getBody().totalElements()).isEqualTo(3);
+
+        ResponseEntity<WorkDetailResponse> detalleSegundo = rest.getForEntity(
+                "/sections/bodas/works/" + segundo.getId(), WorkDetailResponse.class);
+        assertThat(detalleSegundo.getBody().anteriorId()).isEqualTo(primero.getId().toString());
+        assertThat(detalleSegundo.getBody().siguienteId()).isEqualTo(tercero.getId().toString());
+    }
+
+    @Test
     void detalleDeWorkInexistenteODeOtraSeccionDevuelve404() {
         Section bodas = crearSeccionPublicada("Bodas", "bodas", 0);
         Section retratos = crearSeccionPublicada("Retratos", "retratos", 1);
@@ -205,6 +244,14 @@ class PortfolioApiIntegrationTest {
 
         assertThat(inexistente.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(otraSeccion.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    private static void sleepUnMilisegundo() {
+        try {
+            Thread.sleep(2);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private Work crearWorkPublicado(Section section, String objectKey, int orden) {

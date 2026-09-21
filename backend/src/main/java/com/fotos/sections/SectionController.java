@@ -22,7 +22,7 @@ public class SectionController {
 
     @GetMapping
     public List<SectionSummaryResponse> listar() {
-        return sectionRepository.findByPublicadoTrueOrderByOrdenAsc().stream()
+        return sectionRepository.findByPublicadoTrueOrderByOrdenAscCreadoEnAsc().stream()
                 .map(section -> new SectionSummaryResponse(
                         section.getSlug(),
                         section.getNombre(),

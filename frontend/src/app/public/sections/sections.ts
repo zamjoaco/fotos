@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, effect, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { PortfolioService, SectionDetail, WorkGalleryItem } from '../../core/portfolio.service';
 
@@ -8,7 +8,7 @@ import { PortfolioService, SectionDetail, WorkGalleryItem } from '../../core/por
   styleUrl: './sections.css',
   templateUrl: './sections.html',
 })
-export class Sections implements AfterViewInit, OnDestroy {
+export class Sections implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly portfolio = inject(PortfolioService);
 
@@ -25,30 +25,43 @@ export class Sections implements AfterViewInit, OnDestroy {
   private paginaActual = 0;
 
   constructor() {
-    this.slug = this.route.snapshot.paramMap.get('slug') ?? '';
-    this.portfolio.obtenerSeccion(this.slug).subscribe({
-      next: (seccion) => {
-        this.seccion.set(seccion);
-        this.cargarPagina(0);
-      },
-      error: () => {
-        this.noEncontrada.set(true);
-        this.cargando.set(false);
-      },
-    });
-  }
+    this.route.paramMap.subscribe((params) => {
+      this.slug = params.get('slug') ?? '';
+      this.works.set([]);
+      this.paginaActual = 0;
+      this.hayMas.set(false);
+      this.noEncontrada.set(false);
+      this.cargando.set(true);
 
-  ngAfterViewInit(): void {
-    const el = this.sentinel()?.nativeElement;
-    if (!el || typeof IntersectionObserver === 'undefined') {
-      return;
-    }
-    this.observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        this.cargarSiguiente();
-      }
+      this.portfolio.obtenerSeccion(this.slug).subscribe({
+        next: (seccion) => {
+          this.seccion.set(seccion);
+          this.cargarPagina(0);
+        },
+        error: () => {
+          this.noEncontrada.set(true);
+          this.cargando.set(false);
+        },
+      });
     });
-    this.observer.observe(el);
+
+    // El sentinel solo existe en el DOM cuando hayMas() es true (sections.html);
+    // este effect (re)crea el observer cada vez que aparece/desaparece, en vez
+    // de intentarlo una unica vez en ngAfterViewInit (que corre antes de que
+    // el sentinel exista la primera vez).
+    effect(() => {
+      const el = this.sentinel()?.nativeElement;
+      this.observer?.disconnect();
+      if (!el || typeof IntersectionObserver === 'undefined') {
+        return;
+      }
+      this.observer = new IntersectionObserver((entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          this.cargarSiguiente();
+        }
+      });
+      this.observer.observe(el);
+    });
   }
 
   ngOnDestroy(): void {

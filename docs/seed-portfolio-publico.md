@@ -24,6 +24,9 @@ SELECT gen_random_uuid(), s.id, 'bodas/foto-01.jpg', 0, TRUE
 FROM section s WHERE s.slug = 'bodas';
 ```
 
-Repetir por cada objeto subido, incrementando `orden`. La galeria de la
-seccion (`GET /sections/bodas/works`) los va a listar apenas esten
-`publicado = true`.
+Repetir por cada objeto subido, **incrementando `orden`** (no repetir el
+mismo valor entre fotos de la misma seccion: el orden final se desempata
+por `creadoEn`, asi que si insertas varias filas con el mismo `orden` en
+la misma transaccion/segundo, el orden de aparicion puede no ser el que
+esperas). La galeria de la seccion (`GET /sections/bodas/works`) los va a
+listar apenas esten `publicado = true`.
