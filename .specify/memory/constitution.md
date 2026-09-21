@@ -12,10 +12,9 @@ una feature sin que exista su spec, su plan y sus tasks.
 El tablero es **GitHub Projects (Kanban)** + **Issues** + **Milestones**:
 un Milestone por Epic (`Epic N - Nombre`), Issues redactados como historias
 de usuario (`Como <rol> quiero <acción> para <beneficio>`) con label
-`epic:N`. El plan de Epic 0 preveía cargar 1-2 Issues placeholder por
-Epic; a la fecha de esta versión **todavía no se crearon** (0 Issues, 0
-Milestones en el repo) — queda como deuda de Epic 0. Las historias finas
-se redactan al hacer `/specify` de cada feature.
+`epic:N`. Los 8 Milestones (Epic 0 a Epic 7) y 1-2 Issues placeholder por
+Epic ya estan cargados en el repo. Las historias finas se redactan al
+hacer `/specify` de cada feature, reemplazando/ampliando su placeholder.
 
 ### III. Backend por feature, entidades ricas
 El backend se organiza en paquetes **por feature** (`sections`, `works`,
