@@ -68,9 +68,12 @@ Servicios expuestos (puertos por defecto, configurables en `.env`):
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
 
-El admin inicial se crea la primera vez que arranca el backend, leyendo
-`ADMIN_INITIAL_EMAIL` / `ADMIN_INITIAL_PASSWORD` del `.env` (hasheado con
-BCrypt antes de persistir).
+> **Nota (estado actual):** el admin inicial **todavía no está implementado**.
+> Está previsto que se cree la primera vez que arranca el backend, leyendo
+> `ADMIN_INITIAL_EMAIL` / `ADMIN_INITIAL_PASSWORD` del `.env` (hasheado con
+> BCrypt antes de persistir), pero ese `ApplicationRunner` (y su tabla
+> `admin_users`) llega recién en el **Epic 4 — Panel de administración**.
+> Hoy las variables del `.env` se ignoran.
 
 ## Flujo de trabajo
 
