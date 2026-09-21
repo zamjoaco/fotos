@@ -14,7 +14,7 @@ No quedaron `NEEDS CLARIFICATION` en el Technical Context del plan; este documen
 
 ## 2. Paginado/carga incremental de la galeria (FR-009)
 
-**Decision**: El endpoint `GET /api/sections/{slug}/works` pagina por `page`/`size` (offset-based, default `size=24`), ordenado por el campo `orden` de `Work`. El frontend usa scroll infinito (carga la siguiente pagina al acercarse al final del listado).
+**Decision**: El endpoint `GET /sections/{slug}/works` pagina por `page`/`size` (offset-based, default `size=24`), ordenado por el campo `orden` de `Work`. El frontend usa scroll infinito (carga la siguiente pagina al acercarse al final del listado).
 
 **Rationale**: Offset-based pagination es standard de Spring Data JPA (`Pageable`) y no agrega dependencias nuevas. `size=24` balancea el objetivo de SC-002 (carga rapida inicial) con no generar demasiados round-trips en secciones chicas.
 
@@ -41,9 +41,25 @@ No quedaron `NEEDS CLARIFICATION` en el Technical Context del plan; este documen
 
 ## 5. Seed de contenido de demo (FR-007)
 
-**Decision**: Una migracion Flyway (`V2__portfolio_publico.sql`) crea las tablas `section`/`work` y carga secciones de ejemplo (bodas, retratos, books, eventos) sin fotos reales asociadas (referencias a objetos de MinIO son responsabilidad de un script/fixture separado, fuera de esta migracion versionada).
+**Decision**: La migracion Flyway (`V2__portfolio_publico.sql`) crea las tablas `section`/`work` y carga secciones de ejemplo (bodas, retratos, books, eventos) sin fotos reales asociadas (referencias a objetos de MinIO son responsabilidad de un script/fixture separado, ver `docs/seed-portfolio-publico.md`, fuera de esta migracion versionada).
 
 **Rationale**: Mantiene la migracion de esquema (Flyway, versionada, corre en todo ambiente) separada del contenido de demo real (que depende de que existan objetos subidos a MinIO, algo que no tiene sentido versionar en SQL). Las secciones sin `Work` asociado ya estan cubiertas por el edge case "estado vacio prolijo" de la spec.
 
 **Alternatives considered**:
 - *Seed con URLs de imagenes externas (placeholder.com, etc.)*: violaria FR-008 (imagenes deben venir del almacenamiento de objetos propio) y añadiria una dependencia de red externa a los tests de integracion; descartado.
+
+## 6. Prefijo `/api` de los controllers (encontrado al validar end-to-end)
+
+**Decision**: `SectionController` y `WorkController` mapean sin prefijo (`/sections`, no `/api/sections`).
+
+**Rationale**: `frontend/proxy.conf.json` (Epic 0) ya reenvia `/api/*` a `http://backend:8080` haciendo `pathRewrite` de `^/api` a vacio — asi es como `/api/actuator/health` llegaba a `/actuator/health` en la validacion de Epic 0. Los primeros controllers de esta feature se escribieron con `@RequestMapping("/api/sections")`, duplicando el prefijo: el proxy lo sacaba y el backend esperaba encontrarlo, asi que toda request via el proxy daba 404. Se detecto recien al validar `quickstart.md` con el stack real (los tests con `TestRestTemplate` pegandole directo al backend no lo hubieran detectado). Se sincroniza el backend con la convencion que ya establecio Epic 0.
+
+**Alternatives considered**: sacar el `pathRewrite` del proxy y mantener `/api` en los controllers — descartado porque hubiera roto `/api/actuator/health`, que ya funcionaba.
+
+## 7. Region explicita en el MinioClient (encontrado al validar end-to-end)
+
+**Decision**: el bean `MinioClient` fija `.region("us-east-1")` explicitamente.
+
+**Rationale**: la decision #1 asumia que generar una URL presignada era 100% local (sin red). En la practica, el SDK de MinIO (8.5.17) hace un round-trip real contra el `endpoint` configurado para resolver la region del bucket antes de firmar, salvo que la region se pase explicita. Como el `endpoint` ahora es el publico (`http://localhost:9000`, decision #1) y no es alcanzable *desde dentro* del contenedor del backend, esa llamada fallaba con `Connection refused`. Fijar la region evita el round-trip: el presigning queda local de verdad, como se habia asumido.
+
+**Alternatives considered**: mantener dos `MinioClient` (uno interno para llamadas de red, otro publico solo para firmar) — mas correcto a largo plazo si el backend algun dia necesita hablarle de verdad a MinIO (uploads server-side), pero over-engineering para lo que esta feature necesita hoy (solo presigning). Revisar si Epic 4+ agrega uploads reales.

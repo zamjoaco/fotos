@@ -10,19 +10,19 @@
 
 1. Listar secciones publicadas:
    ```
-   curl http://localhost:8080/api/sections
+   curl http://localhost:8080/sections
    ```
    Esperado: 200, array con al menos una seccion (ej. `bodas`).
 
 2. Traer la galeria paginada de una seccion:
    ```
-   curl "http://localhost:8080/api/sections/bodas/works?page=0&size=24"
+   curl "http://localhost:8080/sections/bodas/works?page=0&size=24"
    ```
-   Esperado: 200, `content` con `imageUrl` presignadas de MinIO que abren directo en el browser.
+   Esperado: 200, `content` con `imageUrl` presignadas de MinIO que abren directo en el browser (el endpoint debe ser `http://localhost:9000/...`, NO `http://minio:9000/...` — ver `research.md` sobre el endpoint publico vs interno).
 
 3. Confirmar que una seccion no publicada/inexistente da 404 sin distinguir el motivo:
    ```
-   curl -i http://localhost:8080/api/sections/no-existe
+   curl -i http://localhost:8080/sections/no-existe
    ```
    Esperado: `HTTP/1.1 404`.
 

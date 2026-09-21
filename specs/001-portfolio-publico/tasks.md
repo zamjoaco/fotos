@@ -22,7 +22,7 @@ description: "Task list for Portfolio publico (Epic 1)"
 
 **Purpose**: Habilitar la infraestructura que Epic 0 dejo scaffoldeada pero apagada.
 
-- [ ] T001 Habilitar el bean real de `MinioClient` (`storage.minio.enabled`, ya declarado en `backend/src/main/resources/application.yml` desde Epic 0) creando `backend/src/main/java/com/fotos/works/MinioConfig.java`
+- [X] T001 Habilitar el bean real de `MinioClient` (`storage.minio.enabled`, ya declarado en `backend/src/main/resources/application.yml` desde Epic 0) creando `backend/src/main/java/com/fotos/works/MinioConfig.java`
 
 ---
 
@@ -32,14 +32,14 @@ description: "Task list for Portfolio publico (Epic 1)"
 
 **⚠️ CRITICAL**: Ninguna historia arranca antes de terminar esta fase.
 
-- [ ] T002 Crear migracion Flyway `backend/src/main/resources/db/migration/V2__portfolio_publico.sql`: tabla `section` (`id uuid pk`, `nombre text not null`, `slug text not null unique`, `orden int not null`, `publicado boolean not null default false`, `creado_en timestamptz not null default now()`) y tabla `work` (`id uuid pk`, `section_id uuid not null references section on delete cascade`, `minio_object_key text not null`, `orden int not null`, `publicado boolean not null default false`, `creado_en timestamptz not null default now()`) — ver data-model.md
-- [ ] T003 [P] Crear entidad de dominio `Section` en `backend/src/main/java/com/fotos/sections/Section.java`: metodos `publicar()`/`despublicar()`, valida `slug` con formato `[a-z0-9-]+` (data-model.md)
-- [ ] T004 [P] Crear entidad de dominio `Work` en `backend/src/main/java/com/fotos/works/Work.java`: valida `minioObjectKey` no vacio (data-model.md)
-- [ ] T005 [P] Crear `SectionRepository` en `backend/src/main/java/com/fotos/sections/SectionRepository.java` con `findByPublicadoTrueOrderByOrdenAsc()` y `findBySlugAndPublicadoTrue(String slug)`
-- [ ] T006 [P] Crear `WorkRepository` en `backend/src/main/java/com/fotos/works/WorkRepository.java` con query paginada `findBySection_SlugAndPublicadoTrueAndSection_PublicadoTrueOrderByOrdenAsc(String slug, Pageable pageable)` y helpers para el `Work` anterior/siguiente por `orden`
-- [ ] T007 Crear `MinioPresignedUrlService` en `backend/src/main/java/com/fotos/works/MinioPresignedUrlService.java`: genera URLs presignadas de corta duracion a partir de `minioObjectKey` (research.md #1), consumido por T017/T022
-- [ ] T008 [P] Unitario `SectionTest` en `backend/src/test/java/com/fotos/sections/SectionTest.java`: valida formato de slug y las transiciones `publicar()`/`despublicar()`
-- [ ] T009 [P] Unitario `WorkTest` en `backend/src/test/java/com/fotos/works/WorkTest.java`: valida que `minioObjectKey` vacio o null es rechazado
+- [X] T002 Crear migracion Flyway `backend/src/main/resources/db/migration/V2__portfolio_publico.sql`: tabla `section` (`id uuid pk`, `nombre text not null`, `slug text not null unique`, `orden int not null`, `publicado boolean not null default false`, `creado_en timestamptz not null default now()`) y tabla `work` (`id uuid pk`, `section_id uuid not null references section on delete cascade`, `minio_object_key text not null`, `orden int not null`, `publicado boolean not null default false`, `creado_en timestamptz not null default now()`) — ver data-model.md
+- [X] T003 [P] Crear entidad de dominio `Section` en `backend/src/main/java/com/fotos/sections/Section.java`: metodos `publicar()`/`despublicar()`, valida `slug` con formato `[a-z0-9-]+` (data-model.md)
+- [X] T004 [P] Crear entidad de dominio `Work` en `backend/src/main/java/com/fotos/works/Work.java`: valida `minioObjectKey` no vacio (data-model.md)
+- [X] T005 [P] Crear `SectionRepository` en `backend/src/main/java/com/fotos/sections/SectionRepository.java` con `findByPublicadoTrueOrderByOrdenAsc()` y `findBySlugAndPublicadoTrue(String slug)`
+- [X] T006 [P] Crear `WorkRepository` en `backend/src/main/java/com/fotos/works/WorkRepository.java` con query paginada `findBySection_SlugAndPublicadoTrueAndSection_PublicadoTrueOrderByOrdenAsc(String slug, Pageable pageable)` y helpers para el `Work` anterior/siguiente por `orden`
+- [X] T007 Crear `MinioPresignedUrlService` en `backend/src/main/java/com/fotos/works/MinioPresignedUrlService.java`: genera URLs presignadas de corta duracion a partir de `minioObjectKey` (research.md #1), consumido por T017/T022
+- [X] T008 [P] Unitario `SectionTest` en `backend/src/test/java/com/fotos/sections/SectionTest.java`: valida formato de slug y las transiciones `publicar()`/`despublicar()`
+- [X] T009 [P] Unitario `WorkTest` en `backend/src/test/java/com/fotos/works/WorkTest.java`: valida que `minioObjectKey` vacio o null es rechazado
 
 **Checkpoint**: entidades, repos y servicio de URLs listos — arranca cualquier historia.
 
@@ -53,14 +53,14 @@ description: "Task list for Portfolio publico (Epic 1)"
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Crear `PortfolioApiIntegrationTest` en `backend/src/test/java/com/fotos/portfolio/PortfolioApiIntegrationTest.java` (Testcontainers, patron de `FotosBackendApplicationTests`) con el caso `GET /api/sections` devuelve solo secciones `publicado=true` ordenadas por `orden`, y `[]` si no hay ninguna
+- [X] T010 [P] [US1] Crear `PortfolioApiIntegrationTest` en `backend/src/test/java/com/fotos/portfolio/PortfolioApiIntegrationTest.java` (Testcontainers, patron de `FotosBackendApplicationTests`) con el caso `GET /api/sections` devuelve solo secciones `publicado=true` ordenadas por `orden`, y `[]` si no hay ninguna
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implementar `SectionController#listar` (`GET /api/sections`) en `backend/src/main/java/com/fotos/sections/SectionController.java`: `slug`/`nombre`/`orden`/`cantidadWorks` por seccion, segun `contracts/portfolio-api.md`
-- [ ] T012 [US1] Completar `frontend/src/app/core/portfolio.service.ts` con `listarSecciones()` (`GET /api/sections`)
-- [ ] T013 [US1] Completar `frontend/src/app/public/home/home.ts` + `home.html`: listar secciones con link a `/secciones/:slug`, estado vacio prolijo si no hay ninguna publicada
-- [ ] T014 [P] [US1] `frontend/src/app/public/home/home.spec.ts`: test de listado con secciones y de estado vacio
+- [X] T011 [US1] Implementar `SectionController#listar` (`GET /api/sections`) en `backend/src/main/java/com/fotos/sections/SectionController.java`: `slug`/`nombre`/`orden`/`cantidadWorks` por seccion, segun `contracts/portfolio-api.md`
+- [X] T012 [US1] Completar `frontend/src/app/core/portfolio.service.ts` con `listarSecciones()` (`GET /api/sections`)
+- [X] T013 [US1] Completar `frontend/src/app/public/home/home.ts` + `home.html`: listar secciones con link a `/secciones/:slug`, estado vacio prolijo si no hay ninguna publicada
+- [X] T014 [P] [US1] `frontend/src/app/public/home/home.spec.ts`: test de listado con secciones y de estado vacio
 
 **Checkpoint**: la home funciona de punta a punta de forma independiente.
 
@@ -74,15 +74,15 @@ description: "Task list for Portfolio publico (Epic 1)"
 
 ### Tests for User Story 2
 
-- [ ] T015 [P] [US2] Extender `PortfolioApiIntegrationTest` con: `GET /api/sections/{slug}` (200 publicada / 404 inexistente o no publicada, mismo body) y `GET /api/sections/{slug}/works` (paginado con `size` default 24 y max 100, `[]` si la seccion no tiene works publicados)
+- [X] T015 [P] [US2] Extender `PortfolioApiIntegrationTest` con: `GET /api/sections/{slug}` (200 publicada / 404 inexistente o no publicada, mismo body) y `GET /api/sections/{slug}/works` (paginado con `size` default 24 y max 100, `[]` si la seccion no tiene works publicados)
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Implementar `SectionController#detalle` (`GET /api/sections/{slug}`) con 404 uniforme para inexistente/no-publicada (research.md #4)
-- [ ] T017 [US2] Implementar `WorkController` (`GET /api/sections/{slug}/works`) en `backend/src/main/java/com/fotos/works/WorkController.java`: `Pageable` (`size` default 24, max 100), usa `MinioPresignedUrlService` (T007) para `imageUrl`/`imageUrlExpiraEn`
-- [ ] T018 [P] [US2] Completar `frontend/src/app/core/portfolio.service.ts` con `obtenerSeccion(slug)` y `listarWorks(slug, page)`
-- [ ] T019 [US2] Completar `frontend/src/app/public/sections/sections.ts` + `sections.html`: galeria responsive con scroll infinito (carga la pagina siguiente al acercarse al final), estado vacio, manejo del 404 como "no encontrado"
-- [ ] T020 [P] [US2] `frontend/src/app/public/sections/sections.spec.ts`: tests de galeria paginada, estado vacio y 404
+- [X] T016 [US2] Implementar `SectionController#detalle` (`GET /api/sections/{slug}`) con 404 uniforme para inexistente/no-publicada (research.md #4)
+- [X] T017 [US2] Implementar `WorkController` (`GET /api/sections/{slug}/works`) en `backend/src/main/java/com/fotos/works/WorkController.java`: `Pageable` (`size` default 24, max 100), usa `MinioPresignedUrlService` (T007) para `imageUrl`/`imageUrlExpiraEn`
+- [X] T018 [P] [US2] Completar `frontend/src/app/core/portfolio.service.ts` con `obtenerSeccion(slug)` y `listarWorks(slug, page)`
+- [X] T019 [US2] Completar `frontend/src/app/public/sections/sections.ts` + `sections.html`: galeria responsive con scroll infinito (carga la pagina siguiente al acercarse al final), estado vacio, manejo del 404 como "no encontrado"
+- [X] T020 [P] [US2] `frontend/src/app/public/sections/sections.spec.ts`: tests de galeria paginada, estado vacio y 404
 
 **Checkpoint**: US1 + US2 cubren el MVP completo de Epic 1 (ambas P1).
 
@@ -96,14 +96,14 @@ description: "Task list for Portfolio publico (Epic 1)"
 
 ### Tests for User Story 3
 
-- [ ] T021 [P] [US3] Extender `PortfolioApiIntegrationTest` con `GET /api/sections/{slug}/works/{workId}`: 200 con `anteriorId`/`siguienteId` (`null` en los extremos), 404 si el `workId` no pertenece a la seccion o no esta publicado
+- [X] T021 [P] [US3] Extender `PortfolioApiIntegrationTest` con `GET /api/sections/{slug}/works/{workId}`: 200 con `anteriorId`/`siguienteId` (`null` en los extremos), 404 si el `workId` no pertenece a la seccion o no esta publicado
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Agregar `WorkController#detalle` (`GET /api/sections/{slug}/works/{workId}`) segun `contracts/portfolio-api.md`
-- [ ] T023 [P] [US3] Agregar ruta hija `/secciones/:slug/:workId` en `frontend/src/app/app.routes.ts`
-- [ ] T024 [US3] Crear `frontend/src/app/public/sections/section-detail/section-detail.ts` + `.html`: vista ampliada, botones siguiente/anterior sin recargar la pagina (usa `anteriorId`/`siguienteId`)
-- [ ] T025 [P] [US3] `frontend/src/app/public/sections/section-detail/section-detail.spec.ts`
+- [X] T022 [US3] Agregar `WorkController#detalle` (`GET /api/sections/{slug}/works/{workId}`) segun `contracts/portfolio-api.md`
+- [X] T023 [P] [US3] Agregar ruta hija `/secciones/:slug/:workId` en `frontend/src/app/app.routes.ts`
+- [X] T024 [US3] Crear `frontend/src/app/public/sections/section-detail/section-detail.ts` + `.html`: vista ampliada, botones siguiente/anterior sin recargar la pagina (usa `anteriorId`/`siguienteId`)
+- [X] T025 [P] [US3] `frontend/src/app/public/sections/section-detail/section-detail.spec.ts`
 
 **Checkpoint**: las 3 historias funcionan de forma independiente entre si.
 
@@ -111,8 +111,8 @@ description: "Task list for Portfolio publico (Epic 1)"
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T026 [P] Seed de secciones de demo (bodas, retratos, books, eventos) — documentar en `docs/` como subir objetos de prueba a MinIO para poblar `Work`, ya que la migracion (T002) no versiona binarios (research.md #5)
-- [ ] T027 Correr `quickstart.md` completo (backend, frontend, responsive 360-1920px, caso 404) y corregir lo que falle
+- [X] T026 [P] Seed de secciones de demo (bodas, retratos, books, eventos) — documentar en `docs/` como subir objetos de prueba a MinIO para poblar `Work`, ya que la migracion (T002) no versiona binarios (research.md #5)
+- [X] T027 Correr `quickstart.md` completo (backend, frontend, responsive 360-1920px, caso 404) y corregir lo que falle — encontro y arreglo 2 bugs reales (endpoint publico vs interno de MinIO + region para presigning, ver research.md #6/#7; prefijo `/api` duplicado entre proxy y controllers). Validado con Docker real: build, `docker compose up`, curl a los 4 endpoints, subida de un objeto de prueba a MinIO, y navegacion real en el browser (home -> seccion -> foto ampliada).
 - [ ] T028 Code-review con `opencode` (modelo `big-pickle`) como reviewer independiente antes de abrir el PR, mismo patron que Epic 0
 
 ---

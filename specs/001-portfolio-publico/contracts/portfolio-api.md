@@ -2,7 +2,9 @@
 
 Endpoints REST de solo lectura, sin autenticacion (contenido publico). Documentados tambien en Swagger UI via springdoc-openapi (ya en `pom.xml`).
 
-## `GET /api/sections`
+Rutas tal como las expone el backend (`http://localhost:8080/...`). El frontend las consume via `/api/...` (`environment.apiUrl`), y el proxy/reverse-proxy le saca el prefijo `/api` antes de reenviar (ver `frontend/proxy.conf.json`) — el backend en si NO tiene el prefijo `/api`.
+
+## `GET /sections`
 
 Lista las secciones publicadas, para la home.
 
@@ -23,7 +25,7 @@ Lista las secciones publicadas, para la home.
 - `cantidadWorks`: cuenta solo `Work` publicados de esa seccion (para que la home pueda mostrar "sin fotos todavia" sin pegarle a `/works`).
 - Lista vacia (`[]`) si no hay ninguna seccion publicada — no es un error (edge case de la spec).
 
-## `GET /api/sections/{slug}`
+## `GET /sections/{slug}`
 
 Detalle de una seccion (para el header de la vista de galeria).
 
@@ -45,7 +47,7 @@ Detalle de una seccion (para el header de la vista de galeria).
 }
 ```
 
-## `GET /api/sections/{slug}/works?page={n}&size={n}`
+## `GET /sections/{slug}/works?page={n}&size={n}`
 
 Galeria paginada de una seccion.
 
@@ -73,10 +75,10 @@ Galeria paginada de una seccion.
 ```
 
 - `imageUrl`: URL presignada de MinIO (research.md #1), de corta duracion — el frontend no debe cachearla mas alla de `imageUrlExpiraEn`.
-- Si la `Section` no existe o no esta publicada: 404, mismo contrato que `GET /api/sections/{slug}`.
+- Si la `Section` no existe o no esta publicada: 404, mismo contrato que `GET /sections/{slug}`.
 - Si la `Section` existe, esta publicada, pero no tiene `Work` publicados: 200 con `"content": []` (estado vacio, no error).
 
-## `GET /api/sections/{slug}/works/{workId}`
+## `GET /sections/{slug}/works/{workId}`
 
 Detalle de una foto individual, para la vista ampliada (User Story 3).
 

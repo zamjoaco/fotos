@@ -1,1 +1,26 @@
-<p>home works!</p>
+<main class="mx-auto max-w-5xl px-4 py-10 sm:py-16">
+  <header class="mb-10 text-center">
+    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">Estudio de Fotografia</h1>
+    <p class="mt-3 text-base text-neutral-600">Portfolio de bodas, retratos, books y eventos.</p>
+  </header>
+
+  @if (cargando()) {
+    <p class="text-center text-neutral-500">Cargando secciones...</p>
+  } @else if (secciones().length === 0) {
+    <p class="text-center text-neutral-500">Todavia no hay secciones publicadas.</p>
+  } @else {
+    <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+      @for (seccion of secciones(); track seccion.slug) {
+        <li>
+          <a
+            [routerLink]="['/secciones', seccion.slug]"
+            class="block rounded-lg border border-neutral-200 p-6 text-center transition hover:border-neutral-400"
+          >
+            <span class="block text-lg font-medium">{{ seccion.nombre }}</span>
+            <span class="mt-1 block text-sm text-neutral-500">{{ seccion.cantidadWorks }} fotos</span>
+          </a>
+        </li>
+      }
+    </ul>
+  }
+</main>
