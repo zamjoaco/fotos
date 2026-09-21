@@ -1,50 +1,57 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Estudio de Fotografía — Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Spec-Driven (obligatorio)
+Cada feature/Epic se desarrolla con spec-kit, en orden y sin saltear pasos:
+`/specify` → `/plan` → `/tasks` → `/implement`. Todo queda persistido en
+`/specs/<feature>/` (spec.md, plan.md, tasks.md). No se escribe código de
+una feature sin que exista su spec, su plan y sus tasks.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Scrum de una persona
+El tablero es **GitHub Projects (Kanban)** + **Issues** + **Milestones**:
+un Milestone por Epic (`Epic N - Nombre`), Issues redactados como historias
+de usuario (`Como <rol> quiero <acción> para <beneficio>`) con label
+`epic:N`. En Epic 0 solo se cargan 1-2 Issues placeholder por Epic; las
+historias finas se redactan al hacer `/specify` de cada feature.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Backend por feature, entidades ricas
+El backend se organiza en paquetes **por feature** (`sections`, `works`,
+`leads`, `campaigns`, `auth`). Las entidades de dominio son ricas (POO
+real, la lógica vive en el dominio), nunca anémicas ni transaction-script.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Sin checkout ni pago
+El sitio **no vende online**: el contacto real de venta es un botón a
+WhatsApp (`wa.me`). Cualquier feature que asuma carrito/pago/checkout está
+fuera de alcance salvo decisión explícita documentada.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Testing real desde que haya lógica
+Backend con **JUnit 5 + Mockito** (unitarios) y **Testcontainers**
+(integración contra PostgreSQL real). A partir del Epic 1, cada PR corre
+`mvn verify` completo en CI. El frontend define su estrategia de testing al
+llegar a los Epics que agreguen lógica de UI relevante.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Restricciones
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+Stack fijo: Spring Boot (Java 21, Maven, Spring Security, Spring Data JPA,
+Flyway), Angular + Tailwind, PostgreSQL, Redis, MinIO, Mailhog (dev),
+springdoc-openapi. Las variables de entorno van por `.env` (nunca se
+commitea `.env`). Cada Epic/feature agrega sus tablas con una migración
+Flyway propia (en Epic 0 no hay tablas).
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Cada feature pasa por el ciclo spec-kit completo antes de entregar código.
+Gate de calidad backend: `mvn verify` verde (unitarios + integración).
+Scaffold e infraestructura (Epic 0): Docker, CI de solo build, Project
+board. La infraestructura ya resuelta (docker-compose, Dockerfiles,
+SecurityConfig) se trata con cuidado: no se rompe por ediciones aisladas.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Esta constitution prevalece sobre prácticas ad-hoc. Las enmiendas requieren
+documentación y actualización de este archivo. Cualquier feature debe poder
+rastrearse a su spec en `/specs/<feature>/` y a su Issue/Milestone en
+GitHub.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-09-21 | **Last Amended**: 2026-09-21
