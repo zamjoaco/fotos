@@ -1,9 +1,13 @@
 name: CI
 
-# Epic 0: solo build (compila backend y frontend). No hay tests propios
-# todavia. A partir del Epic 1 este job pasa a correr `mvn -q verify`
-# (con JUnit 5 + Mockito) en vez de `-DskipTests`, ya que el DoD de cada
-# Epic siguiente exige tests de backend.
+# CI completa: build + tests de backend (JUnit 5 + Mockito para los unitarios,
+# Testcontainers para los de integracion) y build + tests de frontend (Vitest).
+# Los tests de integracion levantan su propio Postgres via Testcontainers, asi
+# que este workflow no declara `services:`: el runner ubuntu-latest ya trae el
+# demonio Docker corriendo y es el daemon contra el que Testcontainers opera.
+# Agregar un `services: postgres:` seria config muerta (Testcontainers no
+# consume los hostnames de los services de Actions salvo que el test los
+# declare a mano, y estos usan @ServiceConnection sobre su propio contenedor).
 
 on:
   push:
@@ -24,11 +28,13 @@ jobs:
           java-version: '21'
           cache: maven
 
-      - name: Build backend (skip tests, Epic 0 no tiene tests propios aun)
+      - name: Build y test backend
         working-directory: backend
-        run: mvn -q package -DskipTests
-        # TODO(Epic 1+): reemplazar por `mvn -q verify` para correr los
-        # tests de JUnit 5 + Mockito una vez existan.
+        run: mvn -q verify
+        # `verify` corre los 12 tests unitarios (SectionTest, WorkTest) y los
+        # 13 de integracion (FotosBackendApplicationTests +
+        # PortfolioApiIntegrationTest), que necesitan Docker para su Postgres
+        # de Testcontainers. Reemplaza al `mvn -q package -DskipTests` de Epic 0.
 
   frontend-build:
     name: Build frontend (Angular)
@@ -51,3 +57,14 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Test frontend
+        working-directory: frontend
+        run: npm run test -- --watch=false
+        # El target `test` de angular.json usa el builder @angular/build:unit-test
+        # con el runner Vitest (vitest + jsdom, sin Karma ni karma.conf.js en el
+        # repo), asi que los 17 tests corren en Node con jsdom y NO hace falta
+        # ningun browser. Por eso no se pasa --browsers=ChromeHeadless: sin
+        # `browsers` configurado el builder usa jsdom, y forzarlo exigiria
+        # instalar Chrome en el runner. --watch=false evita el modo watch
+        # (Angular ya lo desactiva solo en no-TTY, pero explicito es determinista).

@@ -1,0 +1,33 @@
+<main class="mx-auto max-w-3xl px-4 py-10">
+  @if (noEncontrado()) {
+    <p class="text-center text-neutral-500">No encontramos esta foto.</p>
+  } @else if (cargando()) {
+    <p class="text-center text-neutral-500">Cargando...</p>
+  } @else if (work(); as w) {
+    <div class="flex flex-col items-center gap-6">
+      @if (imagenRota()) {
+        <p class="text-center text-neutral-500">No pudimos cargar esta foto.</p>
+      } @else {
+        <img
+          [src]="w.imageUrl"
+          alt=""
+          class="max-h-[80vh] w-auto rounded-md object-contain"
+          (error)="alFallarImagen()"
+        />
+      }
+      <nav class="flex w-full items-center justify-between text-sm">
+        @if (w.anteriorId) {
+          <a [routerLink]="['/secciones', slug, w.anteriorId]">&larr; Anterior</a>
+        } @else {
+          <span></span>
+        }
+        <a [routerLink]="['/secciones', slug]" class="underline">Volver a la seccion</a>
+        @if (w.siguienteId) {
+          <a [routerLink]="['/secciones', slug, w.siguienteId]">Siguiente &rarr;</a>
+        } @else {
+          <span></span>
+        }
+      </nav>
+    </div>
+  }
+</main>

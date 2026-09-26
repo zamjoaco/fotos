@@ -75,7 +75,12 @@ services:
       SPRING_MAIL_HOST: mailhog
       SPRING_MAIL_PORT: 1025
       STORAGE_MINIO_ENABLED: "true"
-      STORAGE_MINIO_ENDPOINT: http://minio:9000
+      # No es "http://minio:9000" (el hostname interno de la red de Docker):
+      # el MinioClient no hace ninguna llamada de red para generar URLs
+      # presignadas (la firma se calcula localmente), y ese endpoint queda
+      # embebido tal cual en la URL que recibe el browser del visitante, que
+      # no puede resolver "minio". Debe ser el endpoint publico/host.
+      STORAGE_MINIO_ENDPOINT: http://localhost:${MINIO_PORT:-9000}
       STORAGE_MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-fotos_minio}
       STORAGE_MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-fotos_minio_password}
       STORAGE_MINIO_BUCKET: ${MINIO_BUCKET:-fotos-works}
