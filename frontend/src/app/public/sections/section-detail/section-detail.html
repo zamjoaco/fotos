@@ -5,7 +5,16 @@
     <p class="text-center text-neutral-500">Cargando...</p>
   } @else if (work(); as w) {
     <div class="flex flex-col items-center gap-6">
-      <img [src]="w.imageUrl" alt="" class="max-h-[80vh] w-auto rounded-md object-contain" />
+      @if (imagenRota()) {
+        <p class="text-center text-neutral-500">No pudimos cargar esta foto.</p>
+      } @else {
+        <img
+          [src]="w.imageUrl"
+          alt=""
+          class="max-h-[80vh] w-auto rounded-md object-contain"
+          (error)="alFallarImagen()"
+        />
+      }
       <nav class="flex w-full items-center justify-between text-sm">
         @if (w.anteriorId) {
           <a [routerLink]="['/secciones', slug, w.anteriorId]">&larr; Anterior</a>

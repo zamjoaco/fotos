@@ -18,6 +18,7 @@ export class Sections implements OnDestroy {
   protected readonly cargandoMas = signal(false);
   protected readonly noEncontrada = signal(false);
   protected readonly hayMas = signal(false);
+  protected readonly imagenesRotas = signal<ReadonlySet<string>>(new Set<string>());
 
   private readonly sentinel = viewChild<ElementRef<HTMLElement>>('sentinel');
   private observer?: IntersectionObserver;
@@ -32,6 +33,7 @@ export class Sections implements OnDestroy {
       this.hayMas.set(false);
       this.noEncontrada.set(false);
       this.cargando.set(true);
+      this.imagenesRotas.set(new Set<string>());
 
       this.portfolio.obtenerSeccion(this.slug).subscribe({
         next: (seccion) => {
@@ -74,6 +76,21 @@ export class Sections implements OnDestroy {
     }
     this.cargandoMas.set(true);
     this.cargarPagina(this.paginaActual + 1);
+  }
+
+  protected imagenRota(work: WorkGalleryItem): boolean {
+    return this.imagenesRotas().has(work.id);
+  }
+
+  // Las URLs de Minio son presignadas y expiran: si la foto falla al cargar
+  // (404, token vencido, red) el <img> roto no aporta tamaño y la celda del
+  // grid se desarma. Marcamos el work para pintar un placeholder en su lugar.
+  protected alFallarImagen(work: WorkGalleryItem): void {
+    this.imagenesRotas.update((actuales) => {
+      const siguiente = new Set(actuales);
+      siguiente.add(work.id);
+      return siguiente;
+    });
   }
 
   private cargarPagina(page: number): void {

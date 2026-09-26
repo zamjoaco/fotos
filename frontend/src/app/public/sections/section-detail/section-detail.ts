@@ -15,6 +15,7 @@ export class SectionDetail {
   protected readonly work = signal<WorkDetail | null>(null);
   protected readonly cargando = signal(true);
   protected readonly noEncontrado = signal(false);
+  protected readonly imagenRota = signal(false);
   protected slug = '';
 
   constructor() {
@@ -30,6 +31,7 @@ export class SectionDetail {
       this.slug = slug;
       this.cargando.set(true);
       this.noEncontrado.set(false);
+      this.imagenRota.set(false);
       this.portfolio.obtenerWork(slug, workId).subscribe({
         next: (work) => {
           this.work.set(work);
@@ -41,5 +43,12 @@ export class SectionDetail {
         },
       });
     });
+  }
+
+  // Si la URL presignada de Minio expiro o el objeto no existe, el <img> roto
+  // se dibuja con un tamano arbitrario (o 0) y descuadra la pagina. Swap por un
+  // mensaje y dejamos la navegacion anterior/siguiente intacta.
+  protected alFallarImagen(): void {
+    this.imagenRota.set(true);
   }
 }

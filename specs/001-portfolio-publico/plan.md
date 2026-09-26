@@ -58,15 +58,24 @@ specs/001-portfolio-publico/
 
 ```text
 backend/src/main/java/com/fotos/
+├── common/
+│   ├── NotFoundException.java        # excepcion de dominio para 404 uniforme (research.md #4)
+│   └── ApiExceptionHandler.java      # @ControllerAdvice, mapea NotFoundException -> 404
 ├── sections/
 │   ├── Section.java              # entidad de dominio (nombre, slug, orden, publicado)
 │   ├── SectionRepository.java
 │   ├── SectionController.java    # GET /sections, GET /sections/{slug}
+│   ├── SectionSummaryResponse.java   # record de respuesta para GET /sections
+│   ├── SectionDetailResponse.java    # record de respuesta para GET /sections/{slug}
 │   └── package-info.java         # ya existe (Epic 0)
 └── works/
     ├── Work.java                 # entidad de dominio (section, minioObjectKey, orden, publicado)
     ├── WorkRepository.java
     ├── WorkController.java       # GET /sections/{slug}/works (paginado)
+    ├── MinioProperties.java          # @ConfigurationProperties para MinIO (bucket, endpoints, credenciales)
+    ├── WorkGalleryItemResponse.java  # record de item de galeria (imageUrl presignada, etc.)
+    ├── WorkPageResponse.java         # record de pagina de works
+    ├── WorkDetailResponse.java       # record de respuesta para GET /sections/{slug}/works/{workId}
     └── package-info.java         # ya existe (Epic 0)
 
 backend/src/main/resources/db/migration/

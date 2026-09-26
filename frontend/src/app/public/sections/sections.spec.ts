@@ -148,6 +148,67 @@ describe('Sections', () => {
     expect(observeSpy).toHaveBeenCalled();
   });
 
+  it('reemplaza solo la foto que falla por un placeholder y conserva la celda del grid', () => {
+    irASeccion('bodas');
+    flushSeccion('bodas');
+    httpMock.expectOne((req) => req.url === `${environment.apiUrl}/sections/bodas/works`).flush({
+      content: [
+        { id: '1', imageUrl: 'https://minio.test/1.jpg', imageUrlExpiraEn: '', orden: 0 },
+        { id: '2', imageUrl: 'https://minio.test/2.jpg', imageUrlExpiraEn: '', orden: 1 },
+      ],
+      page: 0,
+      size: 24,
+      totalElements: 2,
+      totalPages: 1,
+    });
+    fixture.detectChanges();
+
+    const imgs: NodeListOf<HTMLImageElement> = fixture.nativeElement.querySelectorAll('img');
+    expect(imgs.length).toBe(2);
+    imgs[0].dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    // La foto rota deja de renderizar <img>, pero la celda sigue reservando el
+    // hueco: el aspect-ratio vive en el <a>, no en la imagen.
+    expect(fixture.nativeElement.querySelectorAll('img').length).toBe(1);
+    const celdas: NodeListOf<HTMLAnchorElement> = fixture.nativeElement.querySelectorAll('ul.grid a');
+    expect(celdas.length).toBe(2);
+    expect(celdas[0].className).toContain('aspect-square');
+    expect(fixture.nativeElement.textContent).toContain('Foto no disponible');
+  });
+
+  it('limpia las fotos rotas al cambiar de seccion', () => {
+    irASeccion('bodas');
+    flushSeccion('bodas');
+    httpMock.expectOne((req) => req.url === `${environment.apiUrl}/sections/bodas/works`).flush({
+      content: [{ id: '1', imageUrl: 'https://minio.test/1.jpg', imageUrlExpiraEn: '', orden: 0 }],
+      page: 0,
+      size: 24,
+      totalElements: 1,
+      totalPages: 1,
+    });
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('img').dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Foto no disponible');
+
+    paramMap$.next(convertToParamMap({ slug: 'retratos' }));
+    flushSeccion('retratos');
+    httpMock
+      .expectOne((req) => req.url === `${environment.apiUrl}/sections/retratos/works`)
+      .flush({
+        content: [{ id: '9', imageUrl: 'https://minio.test/9.jpg', imageUrlExpiraEn: '', orden: 0 }],
+        page: 0,
+        size: 24,
+        totalElements: 1,
+        totalPages: 1,
+      });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).not.toContain('Foto no disponible');
+    expect(fixture.nativeElement.querySelectorAll('img').length).toBe(1);
+  });
+
   it('recarga la galeria al navegar de una seccion a otra sin remontar el componente', () => {
     irASeccion('bodas');
     flushSeccion('bodas');

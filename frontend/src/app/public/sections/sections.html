@@ -14,8 +14,28 @@
       <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
         @for (work of works(); track work.id) {
           <li>
-            <a [routerLink]="['/secciones', slug, work.id]">
-              <img [src]="work.imageUrl" [alt]="seccion()?.nombre" class="aspect-square w-full rounded-md object-cover" loading="lazy" />
+            <!-- El aspect-ratio vive en la celda, no en el <img>: asi el hueco
+                 queda reservado aunque la imagen nunca cargue y el grid no se
+                 desarme cuando una foto falla. -->
+            <a
+              [routerLink]="['/secciones', slug, work.id]"
+              class="block aspect-square w-full overflow-hidden rounded-md bg-neutral-100"
+            >
+              @if (imagenRota(work)) {
+                <span
+                  class="flex h-full w-full items-center justify-center p-2 text-center text-xs text-neutral-500"
+                >
+                  Foto no disponible
+                </span>
+              } @else {
+                <img
+                  [src]="work.imageUrl"
+                  [alt]="seccion()?.nombre ?? ''"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                  (error)="alFallarImagen(work)"
+                />
+              }
             </a>
           </li>
         }

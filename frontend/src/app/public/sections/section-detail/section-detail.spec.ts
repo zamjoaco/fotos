@@ -72,6 +72,35 @@ describe('SectionDetail', () => {
     expect(textos.some((t) => t?.includes('Anterior'))).toBe(false);
   });
 
+  it('sustituye la imagen rota por un mensaje y mantiene la navegacion', async () => {
+    await configurar({ slug: 'bodas', workId: '2' });
+    httpMock = TestBed.inject(HttpTestingController);
+    fixture = TestBed.createComponent(SectionDetail);
+    fixture.detectChanges();
+
+    httpMock.expectOne(`${environment.apiUrl}/sections/bodas/works/2`).flush({
+      id: '2',
+      imageUrl: 'https://minio.test/2.jpg',
+      imageUrlExpiraEn: '',
+      orden: 1,
+      anteriorId: '1',
+      siguienteId: '3',
+    });
+    fixture.detectChanges();
+
+    const img: HTMLImageElement = fixture.nativeElement.querySelector('img');
+    expect(img).toBeTruthy();
+    img.dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('img')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('No pudimos cargar esta foto');
+    // La navegacion anterior/siguiente sobrevive: el fallo es de la imagen, no del work.
+    expect(fixture.nativeElement.textContent).toContain('Volver a la seccion');
+    expect(fixture.nativeElement.textContent).toContain('Anterior');
+    expect(fixture.nativeElement.textContent).toContain('Siguiente');
+  });
+
   it('muestra "no encontrado" cuando la foto no existe o no pertenece a la seccion', async () => {
     await configurar({ slug: 'bodas', workId: 'x' });
     httpMock = TestBed.inject(HttpTestingController);

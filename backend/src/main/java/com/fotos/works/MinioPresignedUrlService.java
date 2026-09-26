@@ -35,7 +35,7 @@ public class MinioPresignedUrlService {
     public PresignedUrl generar(String objectKey) {
         MinioClient client = minioClientProvider.getIfAvailable();
         if (client == null) {
-            throw new IllegalStateException(
+            throw new StorageNotConfiguredException(
                     "MinIO no esta habilitado (storage.minio.enabled=false); no se pueden generar URLs de imagenes.");
         }
         try {
