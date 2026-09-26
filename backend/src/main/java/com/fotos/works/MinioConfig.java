@@ -2,7 +2,6 @@ package com.fotos.works;
 
 import io.minio.MinioClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,9 +9,14 @@ import org.springframework.context.annotation.Configuration;
  * Cliente MinIO real, activo solo cuando storage.minio.enabled=true (ver
  * application.yml). Deshabilitado por defecto para que un `mvn test` local
  * sin Docker no intente resolver un endpoint MinIO inexistente.
+ *
+ * MinioProperties se registra aparte, sin condicion (ver
+ * FotosBackendApplication), porque MinioPresignedUrlService la pide por
+ * constructor de forma incondicional: si esta clase entera se descarta
+ * (enabled=false, el default), MinioProperties nunca existiria como bean y
+ * el contexto no arrancaria.
  */
 @Configuration
-@EnableConfigurationProperties(MinioProperties.class)
 @ConditionalOnProperty(prefix = "storage.minio", name = "enabled", havingValue = "true")
 public class MinioConfig {
 

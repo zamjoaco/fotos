@@ -77,6 +77,13 @@ Galeria paginada de una seccion.
 - `imageUrl`: URL presignada de MinIO (research.md #1), de corta duracion — el frontend no debe cachearla mas alla de `imageUrlExpiraEn`.
 - Si la `Section` no existe o no esta publicada: 404, mismo contrato que `GET /sections/{slug}`.
 - Si la `Section` existe, esta publicada, pero no tiene `Work` publicados: 200 con `"content": []` (estado vacio, no error).
+- **Respuesta 503**: MinIO no esta habilitado (`storage.minio.enabled=false`, el default) y no se puede generar `imageUrl` para ningun `Work` de la pagina:
+
+```json
+{
+  "error": "storage_not_configured"
+}
+```
 
 ## `GET /sections/{slug}/works/{workId}`
 

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fotos.common.StorageNotConfiguredException;
 import com.fotos.sections.Section;
 import com.fotos.sections.SectionRepository;
 import com.fotos.works.MinioPresignedUrlService;
@@ -164,6 +165,19 @@ class PortfolioApiIntegrationTest {
         // La key persistida realmente llega al servicio de firmado, no cualquier string.
         verify(presignedUrlService).generar("bodas/1.jpg");
         verify(presignedUrlService).generar("bodas/2.jpg");
+    }
+
+    @Test
+    void worksDeSeccionDevuelve503CuandoStorageNoEstaConfigurado() {
+        Section bodas = crearSeccionPublicada("Bodas", "bodas", 0);
+        crearWorkPublicado(bodas, "bodas/1.jpg", 0);
+        when(presignedUrlService.generar(anyString()))
+                .thenThrow(new StorageNotConfiguredException("MinIO no esta habilitado"));
+
+        ResponseEntity<String> response = rest.getForEntity("/sections/bodas/works", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+        assertThat(response.getBody()).isEqualTo("{\"error\":\"storage_not_configured\"}");
     }
 
     private Section crearSeccionPublicada(String nombre, String slug, int orden) {

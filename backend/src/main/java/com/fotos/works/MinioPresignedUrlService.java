@@ -1,5 +1,6 @@
 package com.fotos.works;
 
+import com.fotos.common.StorageNotConfiguredException;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.http.Method;

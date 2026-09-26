@@ -1,4 +1,4 @@
-package com.fotos.works;
+package com.fotos.common;
 
 /**
  * MinIO no esta habilitado (storage.minio.enabled=false) pero se intento
